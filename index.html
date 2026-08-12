@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI STUDIO — AI Rasm va Video</title>
+<meta name="description" content="Brendlar uchun professional AI rasm va video xizmatlari. Model yollamasdan, studiya ijaraga olmasdan sifatli kontent tayyorlaymiz.">
+
+<meta property="og:title" content="AI STUDIO — AI Rasm va Video">
+<meta property="og:description" content="Brendlar uchun professional AI rasm va video xizmatlari.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/images/logo.webp">
+
+<link rel="icon" type="image/png" href="assets/images/favicon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Instrument+Serif:ital@1&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+<header>
+  <div class="logo"><span class="mark">AI</span> STUDIO</div>
+  <nav id="mainNav">
+    <a href="#xizmat">Xizmatlar</a>
+    <a href="#ishlarim">Ishlarim</a>
+    <a href="#model">Model tanlash</a>
+    <a href="#narx">Narxlar</a>
+    <a href="#bog">Bog'lanish</a>
+    <a href="#narx" class="btn btn-primary mobile-only-cta" style="margin-top:20px;justify-content:center;">Buyurtma berish</a>
+  </nav>
+  <a href="#narx" class="btn btn-primary header-cta">Buyurtma berish</a>
+  <button class="burger" id="burgerBtn" aria-label="Menyu"><span></span><span></span><span></span></button>
+</header>
+
+<section class="hero">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="hero-stage">
+    <div class="hero-copy">
+      <div class="eyebrow">O'zbekistondagi brendlar uchun</div>
+      <h1>Rasm va videongizni <em>sun'iy intellekt</em> bilan tayyorlaymiz</h1>
+      <p>Model yollamasdan, studiya ijaraga olmasdan — mahsulotingiz uchun sifatli rasm va video tayyorlab beramiz.</p>
+      <div class="cta-row">
+        <a href="#narx" class="btn btn-primary">Narxni hisoblash <span class="arrow-dot">→</span></a>
+        <div class="real-badge"><span class="dot-live"></span> 100% real natija</div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <video id="heroScrollVideo" src="assets/videos/hero.mp4" muted playsinline preload="auto"></video>
+      <div class="hero-scroll-hint">SCROLL ↓ <span>video scroll bilan boshqariladi</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="partners">
+  <div class="lbl">Hamkorlar</div>
+  <div class="marquee">
+    <div class="marquee-track" id="marqueeTrack"></div>
+  </div>
+</div>
+
+<section id="xizmat">
+  <div class="section-head reveal">
+    <div class="tag">Xizmatlar</div>
+    <h2>Ikki xizmat turi bor</h2>
+    <p>Har bir buyurtmani o'zimiz tekshirib, sizning brendingizga moslab tayyorlaymiz.</p>
+  </div>
+  <div class="services">
+    <div class="svc-card reveal">
+      <h3>AI Rasm</h3>
+      <p>Mahsulotingiz yoki modelingiz uchun sifatli, real ko'rinishdagi AI rasm. Ijtimoiy tarmoq va katalog uchun tayyor bo'ladi.</p>
+      <div class="svc-price"><span class="count-num" data-target="50000">0</span> <span>so'm / dona</span></div>
+    </div>
+    <div class="svc-card reveal">
+      <h3>AI Video</h3>
+      <p>Qisqa, jonli reklama va mahsulot videosi. Instagram Reels va Telegram uchun mos formatda tayyorlanadi.</p>
+      <div class="svc-price"><span class="count-num" data-target="100000">0</span> <span>so'm / dona</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="ishlarim">
+  <div class="section-head reveal">
+    <div class="tag">Ishlarim</div>
+    <h2>Men qilgan ishlarim</h2>
+    <p>Rasm va videolarimni alohida ko'rib chiqing.</p>
+  </div>
+  <div class="work-tabs reveal">
+    <button class="active" data-work="photo">Rasm ishlarim</button>
+    <button data-work="video">Video ishlarim</button>
+  </div>
+  <div id="panel-photo" class="reveal">
+    <div class="work-grid" id="photoGrid"></div>
+  </div>
+  <div id="panel-video" class="reveal">
+    <div class="work-grid" id="videoGrid"></div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="section-head reveal">
+    <div class="tag">Model tanlash</div>
+    <h2>O'zingizga yoqqan model yuzini tanlang</h2>
+    <p>Bir nechtasini tanlashingiz mumkin. Rasm va videongiz tanlagan modellaringiz asosida tayyorlanadi.</p>
+  </div>
+  <div class="model-grid reveal" id="modelGrid"></div>
+  <div class="model-note">
+    <span><b id="selCount">0</b> ta model tanlandi</span>
+    <span>Namunaviy yuzlar — yakuniy natija buyurtmangizga moslab generatsiya qilinadi</span>
+  </div>
+</section>
+
+<section id="narx">
+  <div class="section-head reveal">
+    <div class="tag">Narxlar</div>
+    <h2>Xizmatni tanlang, hisob o'zi chiqadi</h2>
+    <p>Alohida dona sifatida buyurtma bering yoki oylik paketlardan birini tanlang.</p>
+  </div>
+
+  <div class="calc-wrap reveal">
+    <div>
+      <div class="mode-toggle">
+        <button class="active" data-mode="single">Alohida tanlash</button>
+        <button data-mode="package">Oylik paket</button>
+      </div>
+
+      <div id="panel-single">
+        <div class="counter-row">
+          <div class="info"><h4>AI Rasm</h4><span>50 000 so'm / dona</span></div>
+          <div class="counter">
+            <button data-target="photo" data-delta="-1">−</button>
+            <span class="val" id="photoVal">0</span>
+            <button data-target="photo" data-delta="1">+</button>
+          </div>
+        </div>
+        <div class="counter-row">
+          <div class="info"><h4>AI Video</h4><span>100 000 so'm / dona</span></div>
+          <div class="counter">
+            <button data-target="video" data-delta="-1">−</button>
+            <span class="val" id="videoVal">0</span>
+            <button data-target="video" data-delta="1">+</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="panel-package" style="display:none;">
+        <div class="pkg-grid">
+          <div class="pkg-card" data-pkg="start" data-price="390000" data-desc="5 rasm + 2 video">
+            <h4>Boshlang'ich</h4>
+            <div class="desc">5 ta AI rasm<br>2 ta AI video</div>
+            <div class="price"><span class="count-num" data-target="390000">0</span> so'm</div>
+          </div>
+          <div class="pkg-card" data-pkg="standard" data-price="850000" data-desc="10 rasm + 5 video">
+            <span class="save">−15%</span>
+            <h4>Standart</h4>
+            <div class="desc">10 ta AI rasm<br>5 ta AI video</div>
+            <div class="price"><span class="count-num" data-target="850000">0</span> so'm</div>
+          </div>
+          <div class="pkg-card" data-pkg="premium" data-price="1650000" data-desc="20 rasm + 10 video">
+            <span class="save">−18%</span>
+            <h4>Premium</h4>
+            <div class="desc">20 ta AI rasm<br>10 ta AI video</div>
+            <div class="price"><span class="count-num" data-target="1650000">0</span> so'm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="receipt">
+      <h4>Buyurtma hisobi</h4>
+      <div class="brand-field">
+        <label for="brandName">Brend / kompaniya nomi</label>
+        <input type="text" id="brandName" placeholder="Masalan: Dunyo Textile">
+      </div>
+      <div id="receiptLines"></div>
+      <div class="r-total">
+        <span class="lbl">Jami:</span>
+        <span class="amt" id="totalAmt">0 so'm</span>
+      </div>
+      <a href="#" class="btn btn-primary" id="orderBtn" target="_blank">Buyurtma berish →</a>
+      <div class="stamp">AI STUDIO — hisob o'zi chiqadi</div>
+    </div>
+  </div>
+</section>
+
+<footer id="bog">
+  <div>
+    <div class="logo"><span class="mark">AI</span> STUDIO</div>
+    <p>Sun'iy intellekt bilan rasm va video tayyorlab beramiz. Buyurtmalarni Telegram orqali qabul qilamiz.</p>
+  </div>
+  <div class="foot-links">
+    <a href="https://t.me/" target="_blank">Telegram</a>
+    <a href="https://instagram.com/" target="_blank">Instagram</a>
+    <a href="tel:+998" target="_blank">Telefon</a>
+  </div>
+</footer>
+
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <div class="lightbox-inner" id="lightboxInner"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
