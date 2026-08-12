@@ -36,11 +36,10 @@
   <button class="burger" id="burgerBtn" aria-label="Menyu"><span></span><span></span><span></span></button>
 </header>
 
-<section class="hero scroll-stage" id="hero-stage" data-stage="hero" style="padding-bottom:0;">
-  <div class="hero-sticky">
-    <div class="glow-orb glow-orb-1"></div>
-    <div class="glow-orb glow-orb-2"></div>
-    <div class="hero-copy">
+<section class="hero" style="padding-bottom:0;">
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="hero-copy">
     <div class="eyebrow">O'zbekistondagi brendlar uchun</div>
     <h1>Rasm va videongizni <em>sun'iy intellekt</em> bilan tayyorlaymiz</h1>
     <p>Model yollamasdan, studiya ijaraga olmasdan — mahsulotingiz uchun sifatli rasm va video tayyorlab beramiz.</p>
@@ -49,27 +48,30 @@
       <div class="real-badge"><span class="dot-live"></span> 100% real natija</div>
     </div>
   </div>
-        <div class="hero-visual reveal-right">
-        <video id="heroScrollVideo" src="assets/videos/hero.mp4" poster="assets/images/hero-poster.jpg" muted playsinline preload="auto"></video>
-      </div>
-      <div class="hero-scroll-ui" aria-hidden="true">
-        <span class="hero-scroll-label">SCROLL TO BUILD</span>
-        <span class="hero-scroll-line"><i></i></span>
-        <span class="hero-scroll-percent">0%</span>
-      </div>
-    </div>
+  <div class="hero-visual reveal-right">
+  <video src="assets/videos/hero.mp4" muted loop playsinline preload="metadata"></video>
+</div>
+  <div class="scroll-cue">
+    <span>Scroll</span>
+    <div class="scroll-line"><div class="scroll-dot"></div></div>
   </div>
 </section>
 
-<div class="partners scroll-stage brand-stage" id="brandlar" data-stage="brandlar">
-  <div class="stage-kicker">02 / BRANDS</div>
+<section class="manifesto">
+  <div class="manifesto-inner reveal">
+    <p class="eyebrow-label">AI STUDIO</p>
+    <h2>Sun'iy intellekt<br><span class="dim">asosidagi</span><br>rasm va video<br><span class="dim">studiyasi</span></h2>
+  </div>
+</section>
+
+<div class="partners">
   <div class="lbl">Hamkorlar</div>
   <div class="marquee">
     <div class="marquee-track" id="marqueeTrack"></div>
   </div>
 </div>
 
-<section id="xizmat" class="scroll-stage" data-stage="xizmat">
+<section id="xizmat">
   <div class="section-head reveal">
     <div class="tag">Xizmatlar</div>
     <h2>Ikki xizmat turi bor</h2>
@@ -89,7 +91,7 @@
   </div>
 </section>
 
-<section id="ishlarim" class="scroll-stage" data-stage="portfolio">
+<section id="ishlarim">
   <div class="section-head reveal">
     <div class="tag">Ishlarim</div>
     <h2>Men qilgan ishlarim</h2>
@@ -107,7 +109,7 @@
   </div>
 </section>
 
-<section id="model" class="scroll-stage" data-stage="model">
+<section id="model">
   <div class="section-head reveal">
     <div class="tag">Model tanlash</div>
     <h2>O'zingizga yoqqan model yuzini tanlang</h2>
@@ -120,7 +122,7 @@
   </div>
 </section>
 
-<section id="narx" class="scroll-stage" data-stage="hisob-kitob">
+<section id="narx">
   <div class="section-head reveal">
     <div class="tag">Narxlar</div>
     <h2>Xizmatni tanlang, hisob o'zi chiqadi</h2>
@@ -193,13 +195,7 @@
   </div>
 </section>
 
-<footer id="bog" class="scroll-stage order-stage" data-stage="buyurtma">
-  <div class="order-final-copy">
-    <div class="tag">07 / BUYURTMA</div>
-    <h2>G'oyangizni <em>AI</em> bilan ishga tushiramiz.</h2>
-    <p>Hisob-kitobni tanlang, modelni belgilang va buyurtmani bir necha bosqichda yuboring.</p>
-    <a href="#narx" class="btn btn-primary">Buyurtmani boshlash <span class="arrow-dot">→</span></a>
-  </div>
+<footer id="bog">
   <div>
     <div class="logo"><span class="mark">AI</span> STUDIO</div>
     <p>Sun'iy intellekt bilan rasm va video tayyorlab beramiz. Buyurtmalarni Telegram orqali qabul qilamiz.</p>
@@ -215,16 +211,6 @@
 <div class="lightbox" id="lightbox">
   <button class="lightbox-close" id="lightboxClose">✕</button>
   <div class="lightbox-inner" id="lightboxInner"></div>
-</div>
-
-<div class="scroll-rail" aria-hidden="true">
-  <span data-rail="hero"></span>
-  <span data-rail="brandlar"></span>
-  <span data-rail="xizmat"></span>
-  <span data-rail="portfolio"></span>
-  <span data-rail="model"></span>
-  <span data-rail="hisob-kitob"></span>
-  <span data-rail="buyurtma"></span>
 </div>
 
 <script src="script.js"></script>
