@@ -30,69 +30,19 @@ const obs = new IntersectionObserver((entries) => {
 }, { threshold: .12 });
 document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
 
-/* ---- cinematic hero: scroll controls the full video timeline ---- */
-const heroSection = document.querySelector('.hero-cinematic');
-const heroVideo = document.getElementById('heroScrollVideo');
-const heroProgressBar = document.getElementById('heroProgressBar');
-let heroVideoReady = false;
-let targetProgress = 0;
-let smoothProgress = 0;
-let lastSeekTime = -1;
-
-function getHeroProgress() {
-  if (!heroSection) return 0;
-  const start = heroSection.offsetTop;
-  const scrollRange = Math.max(1, heroSection.offsetHeight - window.innerHeight);
-  return Math.max(0, Math.min(1, (window.scrollY - start) / scrollRange));
-}
-
-function seekHero(progress, force = false) {
-  if (!heroVideoReady || !Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
-  const time = Math.max(0, Math.min(heroVideo.duration - 0.001, progress * (heroVideo.duration - 0.02)));
-  if (force || Math.abs(time - lastSeekTime) > 0.006) {
-    lastSeekTime = time;
-    try { heroVideo.currentTime = time; } catch (_) {}
-  }
-}
-
-function markHeroReady() {
-  if (!heroVideo || !Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
-  heroVideoReady = true;
-  heroVideo.pause();
-  targetProgress = getHeroProgress();
-  smoothProgress = targetProgress;
-  seekHero(smoothProgress, true);
-}
-
-if (heroVideo) {
-  heroVideo.addEventListener('loadedmetadata', markHeroReady, { once: true });
-  heroVideo.addEventListener('loadeddata', markHeroReady, { once: true });
-  heroVideo.addEventListener('canplay', markHeroReady, { once: true });
-  heroVideo.addEventListener('error', () => {
-    heroVideoReady = false;
-  });
-}
-
-function heroFrame() {
-  const delta = targetProgress - smoothProgress;
-  smoothProgress += delta * 0.12;
-  if (Math.abs(delta) < 0.00002) smoothProgress = targetProgress;
-  seekHero(smoothProgress);
-  if (heroProgressBar) heroProgressBar.style.width = `${smoothProgress * 100}%`;
-  requestAnimationFrame(heroFrame);
-}
+/* ---- parallax: hero rasm va nur effektlari scroll bilan sekin harakatlanadi ---- */
+const heroVisual = document.querySelector('.hero-visual');
+const heroVideo = heroVisual ? heroVisual.querySelector('video') : null;
+const orb1 = document.querySelector('.glow-orb-1');
+const orb2 = document.querySelector('.glow-orb-2');
 
 window.addEventListener('scroll', () => {
-  targetProgress = getHeroProgress();
+  const y = window.scrollY;
+  if (heroVisual) heroVisual.style.transform = `translateY(${y * 0.15}px)`;
+  if (orb1) orb1.style.transform = `translateY(${y * 0.25}px)`;
+  if (orb2) orb2.style.transform = `translateY(${y * -0.18}px)`;
 }, { passive: true });
 
-window.addEventListener('resize', () => {
-  targetProgress = getHeroProgress();
-});
-
-targetProgress = getHeroProgress();
-smoothProgress = targetProgress;
-requestAnimationFrame(heroFrame);
 /* ---- raqamlar scroll qilinganda 0 dan sanab chiqadi ---- */
 function animateCount(el) {
   const target = parseInt(el.dataset.target, 10);
@@ -328,3 +278,110 @@ function render() {
 brandInput.addEventListener('input', render);
 
 render();
+
+
+/* ============================================================
+   SCROLL STORYTELLING CONTROLLER
+   Hero video is controlled by scroll progress; each section
+   becomes an animated chapter one after another.
+   ============================================================ */
+const storyHero = document.getElementById('hero-stage');
+const storyVideo = document.getElementById('heroScrollVideo');
+const storyPercent = document.querySelector('.hero-scroll-percent');
+const storyBar = document.querySelector('.hero-scroll-line i');
+const storySections = [...document.querySelectorAll('.scroll-stage[data-stage]')];
+const railItems = [...document.querySelectorAll('.scroll-rail [data-rail]')];
+
+let videoReady = false;
+let targetVideoTime = 0;
+let renderedVideoTime = 0;
+let storyRaf = 0;
+
+if (storyVideo) {
+  const markReady = () => {
+    videoReady = Number.isFinite(storyVideo.duration) && storyVideo.duration > 0;
+    if (videoReady) {
+      targetVideoTime = Math.min(targetVideoTime, storyVideo.duration - 0.001);
+      renderedVideoTime = targetVideoTime;
+      try { storyVideo.currentTime = renderedVideoTime; } catch (_) {}
+    }
+  };
+  storyVideo.addEventListener('loadedmetadata', markReady, { once:false });
+  storyVideo.addEventListener('loadeddata', markReady, { once:false });
+  storyVideo.addEventListener('canplay', markReady, { once:false });
+  if (storyVideo.readyState >= 1) markReady();
+}
+
+function clamp01(v){ return Math.max(0, Math.min(1, v)); }
+function updateHeroVideo(){
+  if (!storyHero || !storyVideo) return;
+  const maxScroll = Math.max(1, storyHero.offsetHeight - window.innerHeight);
+  const progress = clamp01((window.scrollY - storyHero.offsetTop) / maxScroll);
+  targetVideoTime = videoReady ? progress * Math.max(0, storyVideo.duration - 0.05) : 0;
+  if (storyPercent) storyPercent.textContent = `${Math.round(progress * 100)}%`;
+  if (storyBar) storyBar.style.transform = `scaleX(${progress})`;
+  if (!storyRaf) storyRaf = requestAnimationFrame(renderHeroVideo);
+}
+function renderHeroVideo(){
+  storyRaf = 0;
+  if (!storyVideo || !videoReady) return;
+  const delta = targetVideoTime - renderedVideoTime;
+  renderedVideoTime += delta * 0.18;
+  if (Math.abs(delta) < 0.012) renderedVideoTime = targetVideoTime;
+  try {
+    if (Math.abs(storyVideo.currentTime - renderedVideoTime) > 0.015) {
+      storyVideo.currentTime = renderedVideoTime;
+    }
+  } catch (_) {}
+  if (Math.abs(targetVideoTime - renderedVideoTime) > 0.01) {
+    storyRaf = requestAnimationFrame(renderHeroVideo);
+  }
+}
+window.addEventListener('scroll', updateHeroVideo, {passive:true});
+window.addEventListener('resize', updateHeroVideo, {passive:true});
+updateHeroVideo();
+
+const stageObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('is-active');
+  });
+}, {threshold:0.22, rootMargin:'-8% 0px -8% 0px'});
+storySections.forEach(section => stageObserver.observe(section));
+
+const railObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const key = entry.target.dataset.stage;
+    railItems.forEach(item => item.classList.toggle('active', item.dataset.rail === key));
+  });
+}, {threshold:0.45});
+storySections.forEach(section => railObserver.observe(section));
+
+/* Smooth micro-parallax for cards inside the current chapter. */
+let parallaxTick = false;
+window.addEventListener('scroll', () => {
+  if (parallaxTick) return;
+  parallaxTick = true;
+  requestAnimationFrame(() => {
+    const viewport = window.innerHeight;
+    storySections.forEach(section => {
+      const rect = section.getBoundingClientRect();
+      const center = rect.top + rect.height / 2;
+      const distance = (center - viewport / 2) / viewport;
+      const amount = Math.max(-1, Math.min(1, distance));
+      const head = section.querySelector('.section-head');
+      if (head && section.classList.contains('is-active')) {
+        head.style.transform = `translate3d(0, ${amount * -10}px, 0)`;
+      }
+      if (section.dataset.stage === 'portfolio') {
+        const grid = section.querySelector('.work-grid');
+        if (grid && section.classList.contains('is-active')) grid.style.transform = `translate3d(0, ${amount * 8}px, 0)`;
+      }
+      if (section.dataset.stage === 'model') {
+        const grid = section.querySelector('.model-grid');
+        if (grid && section.classList.contains('is-active')) grid.style.transform = `translate3d(0, ${amount * 7}px, 0)`;
+      }
+    });
+    parallaxTick = false;
+  });
+}, {passive:true});
