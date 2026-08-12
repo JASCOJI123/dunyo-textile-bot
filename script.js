@@ -31,28 +31,6 @@ window.addEventListener('scroll', () => {
   lastScrollY = y;
 }, { passive: true });
 
-/* ---- film grain (kinematik shovqin effekti, past o'lchamda chizib katta ko'rsatiladi — tez ishlaydi) ---- */
-(function initGrain() {
-  const canvas = document.createElement('canvas');
-  canvas.id = 'grain';
-  canvas.width = 160; canvas.height = 160;
-  canvas.style.width = '100%'; canvas.style.height = '100%';
-  canvas.style.imageRendering = 'pixelated';
-  document.body.appendChild(canvas);
-  const ctx = canvas.getContext('2d');
-  const imgData = ctx.createImageData(160, 160);
-  const buf = new Uint32Array(imgData.data.buffer);
-  function draw() {
-    for (let i = 0; i < buf.length; i++) {
-      const shade = (Math.random() * 255) | 0;
-      buf[i] = (255 << 24) | (shade << 16) | (shade << 8) | shade;
-    }
-    ctx.putImageData(imgData, 0, 0);
-    setTimeout(() => requestAnimationFrame(draw), 90);
-  }
-  draw();
-})();
-
 /* ---- scroll reveal (kuchliroq: scale + slide) ---- */
 const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
@@ -149,6 +127,7 @@ function initCoverflow(container, opts = {}) {
     active = 0;
     items.forEach((item, i) => {
       item.addEventListener('click', (e) => {
+        if (justDragged) { e.stopImmediatePropagation(); e.preventDefault(); return; }
         const offset = i - active;
         if (offset !== 0) { e.stopImmediatePropagation(); e.preventDefault(); goTo(i); }
       }, true);
@@ -156,23 +135,30 @@ function initCoverflow(container, opts = {}) {
     render();
   }
 
-  /* sudrab (drag) aylantirish */
-  let dragging = false, startX = 0, startActive = 0, moved = false;
-  container.addEventListener('pointerdown', (e) => {
-    dragging = true; moved = false; startX = e.clientX; startActive = active;
-    container.setPointerCapture(e.pointerId);
-  });
-  container.addEventListener('pointermove', (e) => {
+  /* sudrab (drag) aylantirish — setPointerCapture ishlatilmaydi, aks holda
+     mobil brauzerlarda item ustidagi "click" (tanlash) ishlamay qoladi */
+  let dragging = false, startX = 0, startActive = 0, moved = false, justDragged = false;
+
+  function onMove(e) {
     if (!dragging) return;
     const dx = e.clientX - startX;
     if (Math.abs(dx) > 4) moved = true;
     const deltaSteps = -dx / stepPx;
     goTo(Math.round(startActive + deltaSteps));
+  }
+  function onUp() {
+    dragging = false;
+    if (moved) { justDragged = true; setTimeout(() => { justDragged = false; }, 80); }
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onUp);
+  }
+  container.addEventListener('pointerdown', (e) => {
+    dragging = true; moved = false; startX = e.clientX; startActive = active;
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+    document.addEventListener('pointercancel', onUp);
   });
-  function endDrag() { dragging = false; }
-  container.addEventListener('pointerup', endDrag);
-  container.addEventListener('pointercancel', endDrag);
-  container.addEventListener('pointerleave', endDrag);
   container.addEventListener('wheel', (e) => {
     if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
       e.preventDefault();
@@ -274,13 +260,16 @@ document.querySelectorAll('.work-tabs button').forEach(btn => {
 });
 
 /* ============================================================
-   MODEL TANLASH — bir nechta model yuzini tanlash
+   MODEL TANLASH — Ayol / Erkak bo'limlari alohida
    Namunaviy rasmlar hozircha vaqtincha manzildan.
    Haqiqiy yuzlarni assets/images/models/ papkasiga qo'yib,
-   quyidagi MODEL_IMAGES ro'yxatini shu fayl nomlariga almashtiring.
+   quyidagi ro'yxatlarni shu fayl nomlariga almashtiring.
    ============================================================ */
-const MODEL_IMAGES = Array.from({ length: 10 }, (_, i) =>
-  `https://picsum.photos/seed/aistudio-model-${i + 1}/400/520` // TODO: assets/images/models/model-XX.webp bilan almashtiring
+const MODEL_IMAGES_FEMALE = Array.from({ length: 6 }, (_, i) =>
+  `https://picsum.photos/seed/aistudio-model-female-${i + 1}/400/520` // TODO: assets/images/models/ayol-XX.webp bilan almashtiring
+);
+const MODEL_IMAGES_MALE = Array.from({ length: 6 }, (_, i) =>
+  `https://picsum.photos/seed/aistudio-model-male-${i + 1}/400/520` // TODO: assets/images/models/erkak-XX.webp bilan almashtiring
 );
 
 const modelGrid = document.getElementById('modelGrid');
@@ -288,25 +277,42 @@ const modelCoverflow = initCoverflow(modelGrid, { stepPx: 110, angle: 40 });
 document.getElementById('modelPrev').addEventListener('click', modelCoverflow.prev);
 document.getElementById('modelNext').addEventListener('click', modelCoverflow.next);
 
-let selectedModels = [];
-const modelItems = MODEL_IMAGES.map((src, idx) => {
-  const i = idx + 1;
-  const card = document.createElement('div');
-  card.className = 'coverflow-item model-card';
-  card.dataset.id = i;
-  card.innerHTML = `<img src="${src}" alt="Model yuzi ${i}" loading="lazy" decoding="async">
-                     <span class="num">${String(i).padStart(2, '0')}</span>
-                     <span class="check">✓</span>`;
-  card.addEventListener('click', () => {
-    card.classList.toggle('sel');
-    if (card.classList.contains('sel')) { selectedModels.push(i); }
-    else { selectedModels = selectedModels.filter(x => x !== i); }
-    document.getElementById('selCount').textContent = selectedModels.length;
+let selectedModels = []; // masalan: "female-1", "male-3"
+let currentGender = 'female';
+
+function buildModelItems(gender) {
+  modelGrid.innerHTML = '';
+  const list = gender === 'female' ? MODEL_IMAGES_FEMALE : MODEL_IMAGES_MALE;
+  const items = list.map((src, idx) => {
+    const i = idx + 1;
+    const id = `${gender}-${i}`;
+    const card = document.createElement('div');
+    card.className = 'coverflow-item model-card' + (selectedModels.includes(id) ? ' sel' : '');
+    card.dataset.id = id;
+    card.innerHTML = `<img src="${src}" alt="Model yuzi ${i}" loading="lazy" decoding="async">
+                       <span class="num">${String(i).padStart(2, '0')}</span>
+                       <span class="check">✓</span>`;
+    card.addEventListener('click', () => {
+      card.classList.toggle('sel');
+      if (card.classList.contains('sel')) { selectedModels.push(id); }
+      else { selectedModels = selectedModels.filter(x => x !== id); }
+      document.getElementById('selCount').textContent = selectedModels.length;
+    });
+    modelGrid.appendChild(card);
+    return card;
   });
-  modelGrid.appendChild(card);
-  return card;
+  modelCoverflow.setItems(items);
+}
+buildModelItems(currentGender);
+
+document.querySelectorAll('.model-tabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.model-tabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentGender = btn.dataset.gender;
+    buildModelItems(currentGender);
+  });
 });
-modelCoverflow.setItems(modelItems);
 
 /* ============================================================
    NARX HISOBLAGICH
@@ -371,7 +377,10 @@ function render() {
   let orderText = "";
   const brand = brandInput.value.trim();
   const brandLine = brand ? `%0ABrend: ${encodeURIComponent(brand)}` : "";
-  const modelsLine = selectedModels.length ? `%0AModel: ${encodeURIComponent(selectedModels.map(m => 'Model ' + String(m).padStart(2, '0')).join(', '))}` : "";
+  const modelsLine = selectedModels.length ? `%0AModel: ${encodeURIComponent(selectedModels.map(id => {
+    const [gender, num] = id.split('-');
+    return (gender === 'female' ? 'Ayol' : 'Erkak') + ' ' + String(num).padStart(2, '0');
+  }).join(', '))}` : "";
 
   if (mode === 'single') {
     if (photoQty > 0) { lines.push(`<div class="r-line"><span>AI Rasm × ${photoQty}</span><b>${fmt(photoQty * PHOTO_PRICE)}</b></div>`); total += photoQty * PHOTO_PRICE; }
