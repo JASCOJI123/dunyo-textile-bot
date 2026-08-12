@@ -54,7 +54,7 @@ function scrubHeroVideo() {
   const start = heroSection.offsetTop;
   const distance = Math.max(1, heroSection.offsetHeight - window.innerHeight);
   const progress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
-  const targetTime = progress * Math.max(0, heroVideo.duration - 0.05);
+  const targetTime = progress * Math.max(0, heroVideo.duration - 0.08);
 
   if (Math.abs(heroVideo.currentTime - targetTime) > 0.015) {
     try { heroVideo.currentTime = targetTime; } catch (_) {}
