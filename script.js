@@ -30,49 +30,61 @@ const obs = new IntersectionObserver((entries) => {
 }, { threshold: .12 });
 document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
 
-/* ---- hero video — scroll-driven playback / scrubbing ---- */
-const heroSection = document.querySelector('.hero');
-const heroVisual = document.querySelector('.hero-visual');
+/* ---- cinematic hero: scroll controls the full video timeline ---- */
+const heroSection = document.querySelector('.hero-cinematic');
 const heroVideo = document.getElementById('heroScrollVideo');
-const orb1 = document.querySelector('.glow-orb-1');
-const orb2 = document.querySelector('.glow-orb-2');
+const heroProgressBar = document.getElementById('heroProgressBar');
 let heroVideoReady = false;
-let heroScrubQueued = false;
+let targetProgress = 0;
+let smoothProgress = 0;
+let rafActive = true;
+
+function getHeroProgress() {
+  if (!heroSection) return 0;
+  const start = heroSection.offsetTop;
+  const total = Math.max(1, heroSection.offsetHeight - window.innerHeight);
+  return Math.max(0, Math.min(1, (window.scrollY - start) / total));
+}
+
+function seekHero(progress) {
+  if (!heroVideoReady || !heroVideo.duration) return;
+  const time = progress * Math.max(0, heroVideo.duration - 0.02);
+  if (Math.abs(heroVideo.currentTime - time) > 0.004) {
+    try { heroVideo.currentTime = time; } catch (_) {}
+  }
+}
 
 if (heroVideo) {
   heroVideo.addEventListener('loadedmetadata', () => {
     heroVideoReady = Number.isFinite(heroVideo.duration) && heroVideo.duration > 0;
     heroVideo.pause();
     heroVideo.currentTime = 0;
+    targetProgress = getHeroProgress();
+    smoothProgress = targetProgress;
+    seekHero(smoothProgress);
   });
 }
 
-function scrubHeroVideo() {
-  heroScrubQueued = false;
-  if (!heroSection || !heroVideo || !heroVideoReady) return;
-
-  const start = heroSection.offsetTop;
-  const distance = Math.max(1, heroSection.offsetHeight - window.innerHeight);
-  const progress = Math.min(1, Math.max(0, (window.scrollY - start) / distance));
-  const targetTime = progress * Math.max(0, heroVideo.duration - 0.08);
-
-  if (Math.abs(heroVideo.currentTime - targetTime) > 0.015) {
-    try { heroVideo.currentTime = targetTime; } catch (_) {}
-  }
-
-  if (orb1) orb1.style.transform = `translateY(${progress * 70}px)`;
-  if (orb2) orb2.style.transform = `translateY(${-progress * 50}px)`;
+function heroFrame() {
+  if (!rafActive) return;
+  const delta = targetProgress - smoothProgress;
+  smoothProgress += delta * 0.075;
+  if (Math.abs(delta) < 0.00003) smoothProgress = targetProgress;
+  seekHero(smoothProgress);
+  if (heroProgressBar) heroProgressBar.style.width = `${smoothProgress * 100}%`;
+  requestAnimationFrame(heroFrame);
 }
 
 window.addEventListener('scroll', () => {
-  if (!heroScrubQueued) {
-    heroScrubQueued = true;
-    requestAnimationFrame(scrubHeroVideo);
-  }
-}, { passive: true });
-window.addEventListener('resize', scrubHeroVideo);
-if (heroVideo) heroVideo.addEventListener('loadeddata', scrubHeroVideo);
-scrubHeroVideo();
+  targetProgress = getHeroProgress();
+}, { passive:true });
+window.addEventListener('resize', () => {
+  targetProgress = getHeroProgress();
+});
+
+targetProgress = getHeroProgress();
+smoothProgress = targetProgress;
+requestAnimationFrame(heroFrame);
 
 /* ---- raqamlar scroll qilinganda 0 dan sanab chiqadi ---- */
 function animateCount(el) {

@@ -36,23 +36,48 @@
   <button class="burger" id="burgerBtn" aria-label="Menyu"><span></span><span></span><span></span></button>
 </header>
 
-<section class="hero">
-  <div class="glow-orb glow-orb-1"></div>
-  <div class="glow-orb glow-orb-2"></div>
+<section class="hero hero-cinematic">
   <div class="hero-stage">
+    <div class="hero-video-wrap">
+      <video id="heroScrollVideo" src="assets/videos/hero.mp4" muted playsinline preload="auto" aria-label="Scroll bilan boshqariladigan AI model videosi"></video>
+      <div class="hero-vignette"></div>
+      <div class="hero-grain"></div>
+    </div>
+
+    <div class="hero-topline">
+      <span>AI CONTENT / 01</span>
+      <span>SCROLL TO CREATE</span>
+    </div>
+
     <div class="hero-copy">
       <div class="eyebrow">O'zbekistondagi brendlar uchun</div>
-      <h1>Rasm va videongizni <em>sun'iy intellekt</em> bilan tayyorlaymiz</h1>
-      <p>Model yollamasdan, studiya ijaraga olmasdan — mahsulotingiz uchun sifatli rasm va video tayyorlab beramiz.</p>
+      <h1>Raqamli <em>tasavvur.</em><br>Real natija.</h1>
+      <p>AI yordamida moda, mahsulot va reklama kontentini studiyasiz yaratamiz.</p>
       <div class="cta-row">
-        <a href="#narx" class="btn btn-primary">Narxni hisoblash <span class="arrow-dot">→</span></a>
-        <div class="real-badge"><span class="dot-live"></span> 100% real natija</div>
+        <a href="#narx" class="btn btn-primary">Loyihani boshlash <span class="arrow-dot">→</span></a>
+        <div class="real-badge"><span class="dot-live"></span> 100% real ko'rinish</div>
       </div>
     </div>
-    <div class="hero-visual">
-      <video id="heroScrollVideo" src="assets/videos/hero.mp4" muted playsinline preload="auto" aria-label="Scroll bilan boshqariladigan AI model videosi"></video>
-      <div class="hero-scroll-hint">SCROLL ↓ <span>video scroll bilan boshqariladi</span></div>
+
+    <div class="hero-side-label">
+      <span class="vertical-text">AI STUDIO / CREATIVE PRODUCTION</span>
     </div>
+
+    <div class="hero-progress">
+      <span>00</span>
+      <div class="progress-track"><i id="heroProgressBar"></i></div>
+      <span>10</span>
+    </div>
+
+    <div class="hero-scroll-hint"><span class="scroll-wheel">↓</span> SCROLL <small>VIDEO TIMELINE</small></div>
+  </div>
+</section>
+
+<section class="manifesto">
+  <div class="manifesto-inner">
+    <div class="tag">AI STUDIO</div>
+    <h2>G'oya. Harakat. <em>Natija.</em></h2>
+    <p>Birgina scroll bilan tasavvurdan tayyor vizualgacha. Har bir kadr brend uchun, har bir detal nazorat ostida.</p>
   </div>
 </section>
 
