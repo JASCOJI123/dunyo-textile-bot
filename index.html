@@ -30,15 +30,12 @@
     <a href="#model">Model tanlash</a>
     <a href="#narx">Narxlar</a>
     <a href="#bog">Bog'lanish</a>
-    <a href="#narx" class="btn btn-primary mobile-only-cta" style="margin-top:20px;justify-content:center;">Buyurtma berish</a>
   </nav>
   <a href="#narx" class="btn btn-primary header-cta">Buyurtma berish</a>
   <button class="burger" id="burgerBtn" aria-label="Menyu"><span></span><span></span><span></span></button>
 </header>
 
 <section class="hero" style="padding-bottom:0;">
-  <div class="glow-orb glow-orb-1"></div>
-  <div class="glow-orb glow-orb-2"></div>
   <div class="hero-copy">
     <div class="eyebrow">O'zbekistondagi brendlar uchun</div>
     <h1>Rasm va videongizni <em>sun'iy intellekt</em> bilan tayyorlaymiz</h1>
@@ -102,10 +99,12 @@
     <button data-work="video">Video ishlarim</button>
   </div>
   <div id="panel-photo" class="reveal">
-    <div class="work-grid" id="photoGrid"></div>
+    <div class="coverflow" id="photoGrid"></div>
+    <div class="cf-nav"><button id="photoPrev" aria-label="Oldingi">‹</button><button id="photoNext" aria-label="Keyingi">›</button></div>
   </div>
   <div id="panel-video" class="reveal">
-    <div class="work-grid" id="videoGrid"></div>
+    <div class="coverflow" id="videoGrid"></div>
+    <div class="cf-nav"><button id="videoPrev" aria-label="Oldingi">‹</button><button id="videoNext" aria-label="Keyingi">›</button></div>
   </div>
 </section>
 
@@ -115,7 +114,8 @@
     <h2>O'zingizga yoqqan model yuzini tanlang</h2>
     <p>Bir nechtasini tanlashingiz mumkin. Rasm va videongiz tanlagan modellaringiz asosida tayyorlanadi.</p>
   </div>
-  <div class="model-grid reveal" id="modelGrid"></div>
+  <div class="coverflow reveal" id="modelGrid"></div>
+  <div class="cf-nav"><button id="modelPrev" aria-label="Oldingi">‹</button><button id="modelNext" aria-label="Keyingi">›</button></div>
   <div class="model-note">
     <span><b id="selCount">0</b> ta model tanlandi</span>
     <span>Namunaviy yuzlar — yakuniy natija buyurtmangizga moslab generatsiya qilinadi</span>

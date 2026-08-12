@@ -7,8 +7,14 @@
 /* ---- mobile nav ---- */
 const burgerBtn = document.getElementById('burgerBtn');
 const mainNav = document.getElementById('mainNav');
-burgerBtn.addEventListener('click', () => mainNav.classList.toggle('open'));
-mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mainNav.classList.remove('open')));
+burgerBtn.addEventListener('click', () => {
+  mainNav.classList.toggle('open');
+  document.body.classList.toggle('nav-open', mainNav.classList.contains('open'));
+});
+mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mainNav.classList.remove('open');
+  document.body.classList.remove('nav-open');
+}));
 
 /* ---- header: pastga scroll qilinsa yashirinadi, yuqoriga qaytilsa chiqadi ---- */
 const headerEl = document.querySelector('header');
@@ -53,17 +59,13 @@ const obs = new IntersectionObserver((entries) => {
 }, { threshold: .12 });
 document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
 
-/* ---- parallax: hero rasm va nur effektlari scroll bilan sekin harakatlanadi ---- */
+/* ---- parallax: hero video scroll bilan sekin harakatlanadi ---- */
 const heroVisual = document.querySelector('.hero-visual');
 const heroVideo = heroVisual ? heroVisual.querySelector('video') : null;
-const orb1 = document.querySelector('.glow-orb-1');
-const orb2 = document.querySelector('.glow-orb-2');
 
 window.addEventListener('scroll', () => {
   const y = window.scrollY;
-  if (heroVisual) heroVisual.style.transform = `translateY(${y * 0.15}px)`;
-  if (orb1) orb1.style.transform = `translateY(${y * 0.25}px)`;
-  if (orb2) orb2.style.transform = `translateY(${y * -0.18}px)`;
+  if (heroVisual) heroVisual.style.transform = `translateY(${y * 0.1}px)`;
 }, { passive: true });
 
 if (heroVideo) {
@@ -111,6 +113,77 @@ const slotHTML = LOGO_URL
 marqueeTrack.innerHTML = slotHTML.repeat(10);
 
 /* ============================================================
+   COVERFLOW — 3D perspektivali karusel (Ishlarim + Model tanlash)
+   ============================================================ */
+function initCoverflow(container, opts = {}) {
+  const stepPx = opts.stepPx ?? 130;
+  const angle = opts.angle ?? 42;
+  let items = [];
+  let active = 0;
+
+  function render() {
+    items.forEach((item, i) => {
+      const offset = i - active;
+      const abs = Math.abs(offset);
+      const clamped = Math.max(-4, Math.min(4, offset));
+      const tx = clamped * stepPx;
+      const rot = clamped === 0 ? 0 : -Math.sign(clamped) * angle;
+      const scale = abs === 0 ? 1 : Math.max(.62, 1 - abs * .14);
+      const tz = -abs * 90;
+      const opacity = abs > 4 ? 0 : 1 - abs * .18;
+      item.style.transform = `translate(-50%,-50%) translateX(${tx}px) translateZ(${tz}px) rotateY(${rot}deg) scale(${scale})`;
+      item.style.zIndex = String(100 - abs);
+      item.style.opacity = String(Math.max(0, opacity));
+      item.style.pointerEvents = abs > 4 ? 'none' : 'auto';
+      item.classList.toggle('cf-active', offset === 0);
+    });
+  }
+
+  function goTo(i) {
+    active = Math.max(0, Math.min(items.length - 1, i));
+    render();
+  }
+
+  function setItems(newItems) {
+    items = newItems;
+    active = 0;
+    items.forEach((item, i) => {
+      item.addEventListener('click', (e) => {
+        const offset = i - active;
+        if (offset !== 0) { e.stopImmediatePropagation(); e.preventDefault(); goTo(i); }
+      }, true);
+    });
+    render();
+  }
+
+  /* sudrab (drag) aylantirish */
+  let dragging = false, startX = 0, startActive = 0, moved = false;
+  container.addEventListener('pointerdown', (e) => {
+    dragging = true; moved = false; startX = e.clientX; startActive = active;
+    container.setPointerCapture(e.pointerId);
+  });
+  container.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    if (Math.abs(dx) > 4) moved = true;
+    const deltaSteps = -dx / stepPx;
+    goTo(Math.round(startActive + deltaSteps));
+  });
+  function endDrag() { dragging = false; }
+  container.addEventListener('pointerup', endDrag);
+  container.addEventListener('pointercancel', endDrag);
+  container.addEventListener('pointerleave', endDrag);
+  container.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault();
+      goTo(active + (e.deltaX > 0 ? 1 : -1));
+    }
+  }, { passive: false });
+
+  return { setItems, goTo, next: () => goTo(active + 1), prev: () => goTo(active - 1) };
+}
+
+/* ============================================================
    MENING ISHLARIM — rasm va video alohida joylarda
    ============================================================ */
 /* ============================================================
@@ -139,19 +212,27 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLight
 
 const photoGrid = document.getElementById('photoGrid');
 const videoGrid = document.getElementById('videoGrid');
+const photoCoverflow = initCoverflow(photoGrid);
+const videoCoverflow = initCoverflow(videoGrid);
+document.getElementById('photoPrev').addEventListener('click', photoCoverflow.prev);
+document.getElementById('photoNext').addEventListener('click', photoCoverflow.next);
+document.getElementById('videoPrev').addEventListener('click', videoCoverflow.prev);
+document.getElementById('videoNext').addEventListener('click', videoCoverflow.next);
 
 const REAL_PHOTOS = [
   "assets/images/portfolio/photo-01.webp",
   "assets/images/portfolio/photo-02.webp",
   "assets/images/portfolio/photo-03.webp"
 ];
-REAL_PHOTOS.forEach((src) => {
+const photoItems = REAL_PHOTOS.map((src) => {
   const item = document.createElement('div');
-  item.className = 'work-item';
+  item.className = 'coverflow-item work-item';
   item.innerHTML = `<img src="${src}" alt="Rasm ish namunasi" loading="lazy" decoding="async">`;
   item.addEventListener('click', () => openLightbox('photo', src));
   photoGrid.appendChild(item);
+  return item;
 });
+photoCoverflow.setItems(photoItems);
 
 const REAL_VIDEOS = [
   { src: "assets/videos/video-01.mp4", poster: "assets/images/portfolio/video-01-poster.webp" },
@@ -167,18 +248,20 @@ const REAL_VIDEOS = [
   { src: "assets/videos/video-11.mp4", poster: "assets/images/portfolio/video-11-poster.webp" },
 ];
 
-REAL_VIDEOS.forEach(({ src, poster }) => {
+const videoItems = REAL_VIDEOS.map(({ src, poster }) => {
   const item = document.createElement('div');
-  item.className = 'work-item';
+  item.className = 'coverflow-item work-item';
   item.innerHTML = `
     <video src="${src}" poster="${poster}" muted loop playsinline preload="metadata"></video>
     <div class="play"><span>▶</span></div>`;
   const previewVideo = item.querySelector('video');
-  item.addEventListener('mouseenter', () => previewVideo.play().catch(() => {}));
+  item.addEventListener('mouseenter', () => { if (item.classList.contains('cf-active')) previewVideo.play().catch(() => {}); });
   item.addEventListener('mouseleave', () => { previewVideo.pause(); previewVideo.currentTime = 0; });
   item.addEventListener('click', () => openLightbox('video', src, poster));
   videoGrid.appendChild(item);
+  return item;
 });
+videoCoverflow.setItems(videoItems);
 
 document.querySelectorAll('.work-tabs button').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -191,39 +274,6 @@ document.querySelectorAll('.work-tabs button').forEach(btn => {
 });
 
 /* ============================================================
-   PORTFOLIO AUTO-SCROLL — o'zi asta suriladi, qo'l tegsa to'xtaydi,
-   chetdagi kartalar xiralashmaydi, erkin joyda to'xtaydi.
-   ============================================================ */
-function setupAutoScroll(container, speed = 0.5) {
-  let paused = false;
-  let resumeTimer = null;
-
-  function frame() {
-    if (!paused) {
-      container.scrollLeft += speed;
-      const maxScroll = container.scrollWidth - container.clientWidth;
-      if (maxScroll > 0 && container.scrollLeft >= maxScroll - 1) {
-        container.scrollLeft = 0;
-      }
-    }
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-
-  function pause() { paused = true; clearTimeout(resumeTimer); }
-  function scheduleResume() { clearTimeout(resumeTimer); resumeTimer = setTimeout(() => { paused = false; }, 2200); }
-
-  container.addEventListener('pointerdown', pause);
-  container.addEventListener('touchstart', pause, { passive: true });
-  container.addEventListener('wheel', () => { pause(); scheduleResume(); }, { passive: true });
-  container.addEventListener('pointerup', scheduleResume);
-  container.addEventListener('touchend', scheduleResume);
-  container.addEventListener('mouseleave', scheduleResume);
-}
-setupAutoScroll(photoGrid, 0.45);
-setupAutoScroll(videoGrid, 0.45);
-
-/* ============================================================
    MODEL TANLASH — bir nechta model yuzini tanlash
    Namunaviy rasmlar hozircha vaqtincha manzildan.
    Haqiqiy yuzlarni assets/images/models/ papkasiga qo'yib,
@@ -234,11 +284,15 @@ const MODEL_IMAGES = Array.from({ length: 10 }, (_, i) =>
 );
 
 const modelGrid = document.getElementById('modelGrid');
+const modelCoverflow = initCoverflow(modelGrid, { stepPx: 110, angle: 40 });
+document.getElementById('modelPrev').addEventListener('click', modelCoverflow.prev);
+document.getElementById('modelNext').addEventListener('click', modelCoverflow.next);
+
 let selectedModels = [];
-MODEL_IMAGES.forEach((src, idx) => {
+const modelItems = MODEL_IMAGES.map((src, idx) => {
   const i = idx + 1;
   const card = document.createElement('div');
-  card.className = 'model-card';
+  card.className = 'coverflow-item model-card';
   card.dataset.id = i;
   card.innerHTML = `<img src="${src}" alt="Model yuzi ${i}" loading="lazy" decoding="async">
                      <span class="num">${String(i).padStart(2, '0')}</span>
@@ -250,7 +304,9 @@ MODEL_IMAGES.forEach((src, idx) => {
     document.getElementById('selCount').textContent = selectedModels.length;
   });
   modelGrid.appendChild(card);
+  return card;
 });
+modelCoverflow.setItems(modelItems);
 
 /* ============================================================
    NARX HISOBLAGICH
