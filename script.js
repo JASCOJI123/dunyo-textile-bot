@@ -37,39 +37,46 @@ const heroProgressBar = document.getElementById('heroProgressBar');
 let heroVideoReady = false;
 let targetProgress = 0;
 let smoothProgress = 0;
-let rafActive = true;
+let lastSeekTime = -1;
 
 function getHeroProgress() {
   if (!heroSection) return 0;
   const start = heroSection.offsetTop;
-  const total = Math.max(1, heroSection.offsetHeight - window.innerHeight);
-  return Math.max(0, Math.min(1, (window.scrollY - start) / total));
+  const scrollRange = Math.max(1, heroSection.offsetHeight - window.innerHeight);
+  return Math.max(0, Math.min(1, (window.scrollY - start) / scrollRange));
 }
 
-function seekHero(progress) {
-  if (!heroVideoReady || !heroVideo.duration) return;
-  const time = progress * Math.max(0, heroVideo.duration - 0.02);
-  if (Math.abs(heroVideo.currentTime - time) > 0.004) {
+function seekHero(progress, force = false) {
+  if (!heroVideoReady || !Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
+  const time = Math.max(0, Math.min(heroVideo.duration - 0.001, progress * (heroVideo.duration - 0.02)));
+  if (force || Math.abs(time - lastSeekTime) > 0.006) {
+    lastSeekTime = time;
     try { heroVideo.currentTime = time; } catch (_) {}
   }
 }
 
+function markHeroReady() {
+  if (!heroVideo || !Number.isFinite(heroVideo.duration) || heroVideo.duration <= 0) return;
+  heroVideoReady = true;
+  heroVideo.pause();
+  targetProgress = getHeroProgress();
+  smoothProgress = targetProgress;
+  seekHero(smoothProgress, true);
+}
+
 if (heroVideo) {
-  heroVideo.addEventListener('loadedmetadata', () => {
-    heroVideoReady = Number.isFinite(heroVideo.duration) && heroVideo.duration > 0;
-    heroVideo.pause();
-    heroVideo.currentTime = 0;
-    targetProgress = getHeroProgress();
-    smoothProgress = targetProgress;
-    seekHero(smoothProgress);
+  heroVideo.addEventListener('loadedmetadata', markHeroReady, { once: true });
+  heroVideo.addEventListener('loadeddata', markHeroReady, { once: true });
+  heroVideo.addEventListener('canplay', markHeroReady, { once: true });
+  heroVideo.addEventListener('error', () => {
+    heroVideoReady = false;
   });
 }
 
 function heroFrame() {
-  if (!rafActive) return;
   const delta = targetProgress - smoothProgress;
-  smoothProgress += delta * 0.075;
-  if (Math.abs(delta) < 0.00003) smoothProgress = targetProgress;
+  smoothProgress += delta * 0.12;
+  if (Math.abs(delta) < 0.00002) smoothProgress = targetProgress;
   seekHero(smoothProgress);
   if (heroProgressBar) heroProgressBar.style.width = `${smoothProgress * 100}%`;
   requestAnimationFrame(heroFrame);
@@ -77,7 +84,8 @@ function heroFrame() {
 
 window.addEventListener('scroll', () => {
   targetProgress = getHeroProgress();
-}, { passive:true });
+}, { passive: true });
+
 window.addEventListener('resize', () => {
   targetProgress = getHeroProgress();
 });
@@ -85,7 +93,6 @@ window.addEventListener('resize', () => {
 targetProgress = getHeroProgress();
 smoothProgress = targetProgress;
 requestAnimationFrame(heroFrame);
-
 /* ---- raqamlar scroll qilinganda 0 dan sanab chiqadi ---- */
 function animateCount(el) {
   const target = parseInt(el.dataset.target, 10);
