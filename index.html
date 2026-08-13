@@ -21,6 +21,10 @@
 </head>
 <body>
 
+<div id="loadingScreen"><div class="load-mark">AI</div></div>
+<div class="bg-aura"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<div id="cursor-spot"></div>
+
 
 <header>
   <div class="logo"><span class="mark">AI</span> STUDIO</div>
@@ -36,7 +40,10 @@
 </header>
 
 <section class="hero" style="padding-bottom:0;">
-  <div class="hero-copy">
+  <div class="hero-visual reveal-right">
+    <video src="assets/videos/hero.mp4" muted loop playsinline preload="metadata"></video>
+  </div>
+  <div class="hero-copy reveal-center">
     <div class="eyebrow">O'zbekistondagi brendlar uchun</div>
     <h1>Rasm va videongizni <em>sun'iy intellekt</em> bilan tayyorlaymiz</h1>
     <p>Model yollamasdan, studiya ijaraga olmasdan — mahsulotingiz uchun sifatli rasm va video tayyorlab beramiz.</p>
@@ -45,9 +52,6 @@
       <div class="real-badge"><span class="dot-live"></span> 100% real natija</div>
     </div>
   </div>
-  <div class="hero-visual reveal-right">
-  <video src="assets/videos/hero.mp4" muted loop playsinline preload="metadata"></video>
-</div>
   <div class="scroll-cue">
     <span>Scroll</span>
     <div class="scroll-line"><div class="scroll-dot"></div></div>
@@ -55,7 +59,7 @@
 </section>
 
 <section class="manifesto">
-  <div class="manifesto-inner reveal">
+  <div class="manifesto-inner reveal-center">
     <p class="eyebrow-label">AI STUDIO</p>
     <h2>Sun'iy intellekt<br><span class="dim">asosidagi</span><br>rasm va video<br><span class="dim">studiyasi</span></h2>
   </div>
@@ -69,7 +73,7 @@
 </div>
 
 <section id="xizmat">
-  <div class="section-head reveal">
+  <div class="section-head reveal-center">
     <div class="tag">Xizmatlar</div>
     <h2>Ikki xizmat turi bor</h2>
     <p>Har bir buyurtmani o'zimiz tekshirib, sizning brendingizga moslab tayyorlaymiz.</p>
@@ -89,7 +93,7 @@
 </section>
 
 <section id="ishlarim">
-  <div class="section-head reveal">
+  <div class="section-head reveal-center">
     <div class="tag">Ishlarim</div>
     <h2>Men qilgan ishlarim</h2>
     <p>Rasm va videolarimni alohida ko'rib chiqing.</p>
@@ -101,15 +105,19 @@
   <div id="panel-photo" class="reveal">
     <div class="coverflow" id="photoGrid"></div>
     <div class="cf-nav"><button id="photoPrev" aria-label="Oldingi">‹</button><button id="photoNext" aria-label="Keyingi">›</button></div>
+    <div class="cf-progress" id="photoProgress"></div>
+    <div class="cf-counter" id="photoCounter"></div>
   </div>
   <div id="panel-video" class="reveal">
     <div class="coverflow" id="videoGrid"></div>
     <div class="cf-nav"><button id="videoPrev" aria-label="Oldingi">‹</button><button id="videoNext" aria-label="Keyingi">›</button></div>
+    <div class="cf-progress" id="videoProgress"></div>
+    <div class="cf-counter" id="videoCounter"></div>
   </div>
 </section>
 
 <section id="model">
-  <div class="section-head reveal">
+  <div class="section-head reveal-center">
     <div class="tag">Model tanlash</div>
     <h2>O'zingizga yoqqan model yuzini tanlang</h2>
     <p>Bir nechtasini tanlashingiz mumkin. Rasm va videongiz tanlagan modellaringiz asosida tayyorlanadi.</p>
@@ -120,6 +128,8 @@
   </div>
   <div class="coverflow reveal" id="modelGrid"></div>
   <div class="cf-nav"><button id="modelPrev" aria-label="Oldingi">‹</button><button id="modelNext" aria-label="Keyingi">›</button></div>
+  <div class="cf-progress" id="modelProgress"></div>
+  <div class="cf-counter" id="modelCounter"></div>
   <div class="model-note">
     <span><b id="selCount">0</b> ta model tanlandi</span>
     <span>Namunaviy yuzlar — yakuniy natija buyurtmangizga moslab generatsiya qilinadi</span>
@@ -127,7 +137,7 @@
 </section>
 
 <section id="narx">
-  <div class="section-head reveal">
+  <div class="section-head reveal-center">
     <div class="tag">Narxlar</div>
     <h2>Xizmatni tanlang, hisob o'zi chiqadi</h2>
     <p>Alohida dona sifatida buyurtma bering yoki oylik paketlardan birini tanlang.</p>
